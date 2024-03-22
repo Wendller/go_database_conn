@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  postgres:
+    container_name: go_database
+    image: bitnami/postgresql
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DATABASE=goexpert
