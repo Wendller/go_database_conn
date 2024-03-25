@@ -75,6 +75,43 @@ func findById(db *sql.DB, productId string) (*Product, error) {
 	return &product, nil
 }
 
+func findMany(db *sql.DB) ([]Product, error) {
+	rows, err := db.Query("SELECT id, name, price FROM products")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []Product
+
+	for rows.Next() {
+		var product Product
+		err = rows.Scan(&product.Id, &product.Name, &product.Price)
+		if err != nil {
+			return nil, err
+		}
+
+		products = append(products, product)
+	}
+
+	return products, nil
+}
+
+func deleteById(db *sql.DB, productId string) error {
+	query, err := db.Prepare("DELETE FROM products where id = $1")
+	if err != nil {
+		return err
+	}
+	defer query.Close()
+
+	_, err = query.Exec(productId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func main() {
 	db, err := sql.Open("postgres", "postgresql://postgres:postgres@localhost:5432/goexpert?sslmode=disable")
 	if err != nil {
@@ -106,6 +143,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("Query result: %v\n", queryProduct)
 
-	fmt.Printf("Query result: %v", queryProduct)
+	err = deleteById(db, product.Id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	products, err := findMany(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i, v := range products {
+		fmt.Printf("Product %d: Name - %v, Price - %2.f\n", i+1, v.Name, v.Price)
+	}
 }
