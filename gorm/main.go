@@ -30,7 +30,7 @@ type SerialNumber struct {
 }
 
 func main() {
-	dsn := "host=localhost user=postgres password=postgres dbname=goexpert port=5432 sslmode=disable"
+	dsn := "postgresql://postgres:postgres@localhost:5432/goexpert?sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
